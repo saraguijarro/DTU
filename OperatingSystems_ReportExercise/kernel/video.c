@@ -34,51 +34,61 @@ struct screen
 static struct screen* const
 screen_pointer = (struct screen*) 0xB8000;
 
-int x = 0;
-int y = 0;
+int x = 0; //Initialize the x-cooridnate to zero
+int y = 0; //Initialize the y-cooridnate to zero
 
 void
 kprints(const char* string)
 {
-  while (*string != 0)
+  while (*string != 0) //Verifies the whole string is read
   {
     if (*string == '\n')
     {
-      x = 0;
-      y++;
+      x = 0; //New line starts always furthest left side of screen
+      y++; //Jump line so move down the y-axis
     }
     else
     {
-      screen_pointer->positions[y][x].character = *string;
-      screen_pointer->positions[y][x].attribute = 0xF0;
-      x++;
+      screen_pointer->positions[y][x].character = *string; //Pointer to "character" which correpsonds to the ASCII code byte of the character studied found with the pointer string
+      screen_pointer->positions[y][x].attribute = 0xF0; //Pointer to "attribute" which corresponds to the colour of the text printed (in this case 0xF0)
+      x++; //Print string so move down the x-axis
     }
-    string++;
+    string++; //Pointer string moves to the next position
   }
 }
 
 void
 kprinthex(const register uint32_t value)
 {
-  uint32_t n = value;
-  char hex[100];
-  int i = 0;
-
+  int n = value;
+  int count = 0;
   while(n != 0)
   {
-    int remainder = n%16;
+    n = n/10; //Computation to determine the number of digits the "value" has
+    count++; //The int "count" is used to set the length of the hexadecimal number
+   }
+
+  uint32_t val = value;
+  char hex[count]; //Char array "hex" used to store the hexadecimal number
+  int i = 0;
+  
+  //Determine the  hexadecimal value using the following calculations
+  while(val != 0)
+  {
+    int remainder = val%16;
     if (remainder < 10)
     {
-      hex[i] = (char) remainder + 48;
+      hex[i] = (char) (remainder + 48);
     }
     else
     {
-      hex[i] = (char) remainder + 55;
+      hex[i] = (char) (remainder + 55);
     }
     i++;
-    n = n/16;
+    val = val/16;
   }
 
-  hex[i] = '\n';
-  kprints(&hex[0]);
+  hex[i] = '\n'; //Jumps line after printing the hexadecimal
+  kprints(&hex[0]); //Prints the hexadecimal
 }
+
