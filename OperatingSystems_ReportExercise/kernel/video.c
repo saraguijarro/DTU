@@ -34,50 +34,51 @@ struct screen
 static struct screen* const
 screen_pointer = (struct screen*) 0xB8000;
 
+int x = 0;
+int y = 0;
+
 void
 kprints(const char* string)
 {
-   volatile char *c = (volatile char*)0xB000;
-   while (*string != 0)
-   {
-      int colour = 0xF0;
-      *c++ = *string++;
-      *c++ = colour;
-   }
-}
-
-void toHex(int n)
-{
-   char hex[100]; //char array sotring the hexadecimal number
-   
-   int i = 0;
-   while (n != 0)
-   {
-      int remainder = 0;
-      remainder = n%16;
-      if (remainder < 10)
-      {
-         hex[i] = (char) (remainder+48);
-         i++;
-      }
-      else
-      {
-         hex[i] (char) (remainder+55);
-         i++;
-      }
-      n = n/16;
-   }
-   
-   const char* hexadecimal;
-   for (int j = i-1; j >= 0; j--)
-   {
-      hexadecimal = &hex[j];
-   }
-   kprints(hexadecimal);
+  while (*string != 0)
+  {
+    if (*string == '\n')
+    {
+      x = 0;
+      y++;
+    }
+    else
+    {
+      screen_pointer->positions[y][x].character = *string;
+      screen_pointer->positions[y][x].attribute = 0xF0;
+      x++;
+    }
+    string++;
+  }
 }
 
 void
 kprinthex(const register uint32_t value)
 {
- toHex(value);
+  uint32_t n = value;
+  char hex[100];
+  int i = 0;
+
+  while(n != 0)
+  {
+    int remainder = n%16;
+    if (remainder < 10)
+    {
+      hex[i] = (char) remainder + 48;
+    }
+    else
+    {
+      hex[i] = (char) remainder + 55;
+    }
+    i++;
+    n = n/16;
+  }
+
+  hex[i] = '\n';
+  kprints(&hex[0]);
 }
